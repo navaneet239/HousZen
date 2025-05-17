@@ -1,0 +1,12 @@
+{
+  "manifest_version": 3,
+  "name": "HousZen New Tab - Zen-inspired New Tab",
+  "version": "1.0",
+  "description": "A Zen-inspired new tab experience with a focus on simplicity and productivity",
+  "chrome_url_overrides": {
+    "newtab": "index.html"
+  },
+  "icons": {
+    "128": "icon.png"
+  }
+}

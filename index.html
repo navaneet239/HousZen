@@ -1,0 +1,1106 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#a3fd93" />
+  <meta name="description"
+    content="HousZen New Tab - A Zen-inspired new tab experience with a focus on simplicity and productivity." />
+  <meta name="keywords" content="HousZen, New Tab, Zen Mode, Productivity, Minimalist" />
+  <meta name="author" content="Navaneet J" />
+  <meta name="application-name" content="HousZen New Tab" />
+  <meta name="apple-mobile-web-app-title" content="HousZen New Tab" />
+  <meta name="msapplication-TileColor" content="#a3fd93" />
+  <link rel="icon"
+    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='28' fill='%23a3fd93'/%3E%3Ctext x='32' y='38' font-size='48' text-anchor='middle' fill='black' font-family='Segoe UI, Arial, sans-serif' dominant-baseline='middle'%3E%2B%3C/text%3E%3C/svg%3E">
+  <title>HousZen New Tab</title>
+  <!-- Google Fonts Material Icons -->
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,700,1,0" />
+  <style>
+    :root {
+      --bg-gradient: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
+      --glass: rgba(255, 255, 255, 0.1);
+      /* more visible glass */
+      --glass-border: rgba(255, 255, 255, 0.1);
+      --text-gradient: linear-gradient(to right, #ffffff, #a3fd93);
+      --blur: blur(20px);
+      --widget-blur: blur(16px);
+      --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18);
+      --glass-dark: rgba(0, 0, 0, 0.25);
+      --theme-color: #a3fd93;
+      --text-color: #ffffff;
+    }
+
+    :root[data-theme="dark"] {
+      --glass: rgba(0, 0, 0, 0.25);
+      --glass-dark: rgba(0, 0, 0, 0.45);
+      --text-color: #e0e0e0;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: var(--bg-gradient);
+      background-image: url('https://images.unsplash.com/photo-1637070773929-054cf3288cbb?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8ZGFyayUyMGdyZWVuJTIwd2FsbHBhcGVyfGVufDB8fDB8fHww');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      backdrop-filter: blur(10px);
+      color: white;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    body.zen-mode {
+      overflow: hidden;
+    }
+
+    body.zen-mode::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      transition: opacity 0.5s ease;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    #background {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    main {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      gap: 1rem;
+      padding: 2rem;
+      transition: all 0.3s ease;
+      position: relative;
+      z-index: 2;
+    }
+
+    a {
+      color: #a3fd93;
+      text-decoration: none;
+    }
+
+    .clock {
+      font-size: 4rem;
+      font-weight: 800;
+      background: var(--text-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      transition: all 0.3s ease;
+      margin-bottom: -1rem;
+    }
+
+    .greeting {
+      font-size: 1.25rem;
+      color: #e0e0e0;
+      font-weight: 200;
+    }
+
+    .search {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--glass);
+      backdrop-filter: var(--blur);
+      padding: 1rem;
+      border-radius: 1rem;
+      width: 80%;
+      max-width: 600px;
+      border: 1.5px solid var(--glass-border);
+      box-shadow: var(--glass-shadow);
+      transition: box-shadow 0.3s;
+    }
+
+    .search:focus-within {
+      box-shadow: 0 12px 36px 0 rgba(31, 38, 135, 0.25);
+    }
+
+    .search input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: white;
+      font-size: 1.1rem;
+      outline: none;
+      padding-left: 1rem;
+    }
+
+    .search button {
+      background: #a3fd93;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      color: rgb(1, 30, 1);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      box-shadow: 0 2px 8px 0 rgba(31, 38, 135, 0.10);
+      transition: all 0.2s;
+    }
+
+    .search button:hover {
+      background: var(--glass);
+      color: #e0e0e0;
+    }
+
+    .shortcuts,
+    .widgets {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+      gap: 1rem;
+      width: 90%;
+      max-width: 800px;
+      opacity: 1;
+      transition: opacity 0.3s ease;
+    }
+
+    .icon {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 1.2rem 1rem;
+      background: var(--glass);
+      backdrop-filter: var(--widget-blur);
+      border-radius: 1.2rem;
+      border: 1.5px solid var(--glass-border);
+      box-shadow: var(--glass-shadow);
+      transition: 0.3s;
+      text-align: center;
+      min-width: 90px;
+      min-height: 90px;
+      gap: 0.5rem;
+    }
+
+    .icon:hover {
+      transform: scale(0.95);
+      box-shadow: 0 12px 36px 0 rgba(31, 38, 135, 0.22);
+      border-color: #a3fd93;
+      color: #e0e0e0;
+    }
+
+    .icon .material-symbols-rounded {
+      font-size: 2.2rem;
+      color: #e0e0e0;
+      margin-bottom: 0.2rem;
+      padding: 10px;
+      background: var(--glass);
+      border-radius: 10px;
+      transition: all 0.3s ease;
+    }
+
+    .icon:hover .material-symbols-rounded {
+      color: #a3fd93;
+      transform: scale(0.9);
+    }
+
+    .widget {
+      background: var(--glass);
+      backdrop-filter: var(--widget-blur);
+      border-radius: 1.2rem;
+      min-width: 150px;
+      overflow: hidden;
+      border: 1.5px solid var(--glass-border);
+      box-shadow: var(--glass-shadow);
+      transition: box-shadow 0.3s, border-color 0.3s;
+    }
+
+    .widget:hover {
+      box-shadow: 0 12px 36px 0 rgba(31, 38, 135, 0.22);
+      border-color: #a3fd93;
+    }
+
+    .widget strong {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 600;
+      font-size: 1rem;
+      background: var(--glass);
+      padding: 0.5rem 0.75rem;
+      border: var(--glass-border);
+    }
+
+    .widget strong span {
+      font-size: 1.1rem;
+      margin-bottom: -2.5px;
+      color: #a3fd93;
+      background-color: var(--glass);
+      padding: 5px;
+      border-radius: 50%;
+    }
+
+    .widget .widgetBody {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      padding: 10px 15px;
+    }
+
+    .widget textarea,
+    .widget input[type="text"] {
+      width: 100%;
+      background: transparent;
+      border: none;
+      color: white;
+      font-size: 1rem;
+      outline: none;
+      margin-top: 10px;
+      border-radius: 8px;
+      margin-bottom: 0.5rem;
+    }
+
+    .widget #todoList {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    .widget #todoList li {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      justify-content: space-between;
+      gap: 0.5rem;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .widget #todoList li .todo-content {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .widget #todoList li .delete-todo {
+      display: flex;
+      opacity: 0;
+      color: #a3fd93;
+      cursor: pointer;
+      background: var(--glass);
+      border: none;
+      padding: 2px;
+      border-radius: 4px;
+      font-size: 1.2rem;
+      transition: opacity 0.2s ease;
+    }
+
+    .widget #todoList li:hover .delete-todo {
+      opacity: 1;
+    }
+
+    .widget #todoList li input[type="checkbox"] {
+      accent-color: #a3fd93;
+      width: 15px;
+      height: 15px;
+    }
+
+    .widget #todoList li .delete-todo span {
+      margin: 0;
+    }
+
+    .widget button {
+      background: #a3fd93;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      color: rgb(1, 30, 1);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      box-shadow: 0 2px 8px 0 rgba(31, 38, 135, 0.10);
+      transition: background 0.2s;
+    }
+
+    .widget button:hover {
+      background: var(--glass);
+      color: #e0e0e0;
+    }
+
+    .format-buttons {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .format-buttons button {
+      background: var(--glass);
+      border: none;
+      padding: 0.5rem;
+      border-radius: 0.5rem;
+      color: #a3fd93;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      transition: background 0.2s;
+    }
+
+    .format-buttons button:hover {
+      background: rgba(163, 253, 147, 0.2);
+    }
+
+    #notesEditor {
+      min-height: 162.5px;
+      max-height: 162.5px;
+      background: var(--glass);
+      padding: 0.5rem;
+      border-radius: 0.5rem;
+      margin-bottom: 0.5rem;
+      color: white;
+      font-size: 1rem;
+      overflow-y: auto;
+    }
+
+    #notesEditor[contenteditable="true"]:focus {
+      outline: 2px solid #a3fd93;
+      outline-offset: 2px;
+    }
+
+    .top-bar {
+      position: fixed;
+      z-index: 3;
+      top: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: space-between;
+      padding: 1rem;
+    }
+
+    .home-icon,
+    .zen-toggle {
+      background: transparent;
+      backdrop-filter: var(--blur);
+      border-radius: 1rem;
+      padding: 0.7rem;
+      color: #a3fd93;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .home-icon:hover,
+    .zen-toggle:hover {
+      border-color: #a3fd93;
+      transform: scale(0.95);
+    }
+
+    .home-icon span,
+    .zen-toggle span {
+      margin-bottom: -7.5px;
+      font-size: 1.5rem;
+    }
+
+    .home-text {
+      position: absolute;
+      left: 4rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #e0e0e0;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .home-icon:hover .home-text {
+      opacity: 1;
+    }
+
+    body.zen-mode .shortcuts,
+    body.zen-mode .widgets {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    body.zen-mode .shortcuts.hidden,
+    body.zen-mode .widgets.hidden {
+      display: none;
+    }
+
+    /* Loading Screen Styles */
+    .loading-screen {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      backdrop-filter: var(--blur);
+      background: rgba(0, 0, 0, 0.95);
+      opacity: 1;
+      transition: opacity 0.3s ease;
+    }
+
+    .loading-screen.fade-out {
+      opacity: 0;
+    }
+
+    .loader-container {
+      position: relative;
+      width: 60px;
+      height: 60px;
+    }
+
+    .loading-icon {
+      position: absolute;
+      inset: 0;
+      width: 60px;
+      height: 60px;
+      border: 3px solid var(--glass);
+      border-top-color: #a3fd93;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      box-shadow: 0 0 15px rgba(163, 253, 147, 0.3),
+                  inset 0 0 15px rgba(163, 253, 147, 0.3);
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+        filter: drop-shadow(0 0 10px #a3fd93);
+      }
+    }
+
+    .loader-logo {
+      position: absolute;
+      inset: 0;
+      margin: auto;
+      width: 30px;
+      height: 30px;
+      object-fit: contain;
+    }
+
+    /* Sidebar Styles */
+    .sidebar {
+      position: fixed;
+      left: -300px;
+      top: 0;
+      width: 300px;
+      height: 100vh;
+      background: rgba(2, 13, 1, 0.95);
+      backdrop-filter: var(--blur);
+      z-index: 1000;
+      transition: left 0.3s ease;
+      border-right: 1.5px solid var(--glass-border);
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar.open {
+      left: 0;
+    }
+
+    .sidebar-header {
+      padding: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .sidebar-header h2 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--theme-color);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .sidebar-header img {
+      width: 35px;
+      height: 35px;
+    }
+
+    .sidebar-header .close-btn {
+      background: none;
+      border: none;
+      color: var(--theme-color);
+      cursor: pointer;
+      padding: 0.5rem;
+      border-radius: 0.5rem;
+      transition: all 0.2s;
+    }
+
+    .sidebar-header .close-btn:hover {
+      background: var(--glass);
+    }
+
+    hr {
+      border: 1px solid var(--glass-border);
+      margin: 0.5rem 0;
+    }
+
+    .sidebar-content {
+      padding: 1.25rem;
+      padding-top: 0.25rem;
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      gap: 1rem;
+      flex-direction: column;
+    }
+
+    .sidebar button {
+      background: var(--glass);
+      border: 1.5px solid var(--glass-border);
+      padding: 0.8rem 1.2rem;
+      border-radius: 0.8rem;
+      color: var(--text-color);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      width: 100%;
+      font-size: 1rem;
+      transition: all 0.2s;
+    }
+
+    .sidebar button:hover {
+      border-color: var(--theme-color);
+      transform: scale(0.98);
+      background: var(--glass-dark);
+    }
+
+    .sidebar button .material-symbols-rounded {
+      font-size: 1.4rem;
+      color: var(--theme-color);
+    }
+
+    .sidebar-footer {
+      padding: 1.5rem;
+      text-align: center;
+      color: var(--text-color);
+      font-size: 0.9rem;
+      margin-top: auto;
+    }
+
+    .sidebar-footer a {
+      color: var(--theme-color);
+      text-decoration: none;
+      display: inline-block;
+      margin-top: 0.3rem;
+      transition: all 0.2s;
+    }
+
+    .sidebar-footer a:hover {
+      transform: scale(0.95);
+    }
+
+    .home-icon img,
+    .sidebar-header img {
+      width: 30px;
+      height: 30px;
+      object-fit: contain;
+      margin-bottom: -5px;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Add this right after body tag -->
+  <div class="loading-screen">
+    <div class="loader-container">
+      <div class="loading-icon"></div>
+      <img src="./icon.png" alt="HousZen" class="loader-logo">
+    </div>
+  </div>
+  <canvas id="background"></canvas>
+  <div class="top-bar">
+    <div class="home-icon" onclick="toggleSidebar()">
+      <img src="./icon.png" alt="HouZen">
+      <span class="home-text">HousZen</span>
+    </div>
+    <div class="zen-toggle" onclick="toggleZen()" title="Toggle Zen Mode">
+      <span class="material-symbols-rounded">do_not_disturb</span>
+    </div>
+  </div>
+  <main>
+    <div class="clock" id="clock"></div>
+    <div class="greeting"></div>
+
+    <div class="search">
+      <input type="search" id="searchInput" placeholder="Search with Google..."
+        onkeydown="if(event.key==='Enter'){searchGoogle();}" />
+      <button onclick="searchGoogle()" title="Search">
+        <span class="material-symbols-rounded">search</span>
+      </button>
+    </div>
+
+    <div class="shortcuts">
+      <a class="icon" href="https://youtube.com" title="YouTube">
+        <span class="material-symbols-rounded">smart_display</span>
+        <span>YouTube</span>
+      </a>
+      <a class="icon" href="https://mail.google.com" title="Gmail">
+        <span class="material-symbols-rounded">mail</span>
+        <span>Gmail</span>
+      </a>
+      <a class="icon" href="https://reddit.com" title="Reddit">
+        <span class="material-symbols-rounded">forum</span>
+        <span>Reddit</span>
+      </a>
+      <a class="icon" href="https://github.com" title="GitHub">
+        <span class="material-symbols-rounded">code</span>
+        <span>GitHub</span>
+      </a>
+    </div>
+
+    <div class="widgets">
+      <div class="widget">
+        <strong>
+          <span class="material-symbols-rounded" style="color:#a3fd93;">check_circle</span>
+          To-Do
+        </strong>
+        <div class="widgetBody">
+          <input id="todoInput" type="text" maxlength="40" placeholder="Add task..."
+            style="width: 80%; margin-top:0.5rem;" onkeydown="if(event.key==='Enter'){addTodo();}" />
+          <ul id="todoList">
+          </ul>
+        </div>
+      </div>
+      <div class="widget">
+        <strong>
+          <span class="material-symbols-rounded" style="color:#a3fd93;">calendar_month</span>
+          Calendar
+        </strong>
+        <div id="calendarWidget" class="widgetBody">
+          <div id="calendarHeader"
+            style="    flex-direction: row; display:flex;justify-content:space-between;align-items:center;margin:0.5rem 0;">
+            <button onclick="prevMonth()"
+              style="font-size:1.2rem;padding:0 0.5rem;background:var(--glass);color:#a3fd93;border:none;border-radius:5px;cursor:pointer;">&#8592;</button>
+            <span id="calendarMonth" style="font-weight:600;"></span>
+            <button onclick="nextMonth()"
+              style="font-size:1.2rem;padding:0 0.5rem;background:var(--glass);color:#a3fd93;border:none;border-radius:5px;cursor:pointer;">&#8594;</button>
+          </div>
+          <table id="calendarTable" style="width:100%;border-collapse:collapse;text-align:center;">
+            <thead>
+              <tr style="color:#a3fd93;font-size:0.95em;">
+                <th>Su</th>
+                <th>Mo</th>
+                <th>Tu</th>
+                <th>We</th>
+                <th>Th</th>
+                <th>Fr</th>
+                <th>Sa</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="widget">
+        <strong>
+          <span class="material-symbols-rounded" style="color:#a3fd93;">edit_note</span>
+          Notes
+        </strong>
+        <div class="widgetBody">
+          <div class="format-buttons" style="display:flex;gap:0.5rem;margin-bottom:0.5rem; 
+          flex-direction: row; padding: 0;">
+            <button onclick="formatText('bold')" title="Bold" style="flex: 1;">
+              <span class="material-symbols-rounded">format_bold</span>
+            </button>
+            <button onclick="formatText('italic')" title="Italic" style="flex: 1;">
+              <span class="material-symbols-rounded">format_italic</span>
+            </button>
+            <button onclick="formatText('underline')" title="Underline" style="flex: 1;">
+              <span class="material-symbols-rounded">format_underlined</span>
+            </button>
+            <button onclick="formatText('insertUnorderedList')" title="List" style="flex: 1;">
+              <span class="material-symbols-rounded">format_list_bulleted</span>
+            </button>
+          </div>
+          <div id="notesEditor" contenteditable="true"
+            style="flex: 1; background:var(--glass);padding:0.5rem;border-radius:0.5rem;margin-bottom:0.5rem;"></div>
+        </div>
+      </div>
+      <script>
+        // To-Do widget logic
+        function addTodo() {
+          const input = document.getElementById('todoInput');
+          const list = document.getElementById('todoList');
+          const items = list.querySelectorAll('li');
+          if (input.value.trim() && items.length < 5) {
+            const li = document.createElement('li');
+            li.innerHTML = `
+              <div class="todo-content">
+                <input type="checkbox" />
+                <span>${input.value.trim()}</span>
+              </div>
+              <button class="delete-todo" onclick="deleteTodo(this)">
+                <span class="material-symbols-rounded">close</span>
+              </button>
+            `;
+            list.appendChild(li);
+            input.value = '';
+            saveTodos();
+          }
+        }
+
+        function deleteTodo(button) {
+          button.closest('li').remove();
+          saveTodos();
+        }
+
+        function saveTodos() {
+          const todos = [];
+          document.querySelectorAll('#todoList li').forEach(li => {
+            todos.push({
+              text: li.querySelector('.todo-content span').innerText,
+              checked: li.querySelector('input').checked
+            });
+          });
+          localStorage.setItem('todos', JSON.stringify(todos));
+        }
+
+        function loadTodos() {
+          const list = document.getElementById('todoList');
+          const todos = JSON.parse(localStorage.getItem('todos') || '[]');
+          list.innerHTML = '';
+          todos.forEach(todo => {
+            const li = document.createElement('li');
+            li.innerHTML = `
+              <div class="todo-content">
+                <input type="checkbox" ${todo.checked ? 'checked' : ''} />
+                <span>${todo.text}</span>
+              </div>
+              <button class="delete-todo" onclick="deleteTodo(this)">
+                <span class="material-symbols-rounded">close</span>
+              </button>
+            `;
+            list.appendChild(li);
+          });
+          list.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+            checkbox.addEventListener('change', saveTodos);
+          });
+        }
+
+        // Initialize todos
+        loadTodos();
+
+        // Notes functionality (already has localStorage)
+        function formatText(command) {
+          document.execCommand(command, false, null);
+          document.getElementById('notesEditor').focus();
+        }
+
+        // Load saved notes on startup
+        document.getElementById('notesEditor').innerHTML = localStorage.getItem('notes') || '';
+
+        // Save notes when content changes
+        document.getElementById('notesEditor').addEventListener('input', function () {
+          localStorage.setItem('notes', this.innerHTML);
+        });
+      </script>
+    </div>
+  </main>
+
+  <div class="sidebar-overlay"></div>
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <h2>
+        <img src="./icon.png" alt="HouZen">
+        HousZen
+      </h2>
+      <button class="close-btn" onclick="toggleSidebar()" style="
+    width: fit-content;
+">
+        <span class="material-symbols-rounded">close</span>
+      </button>
+    </div>
+    <div class="sidebar-content">
+      <button onclick="toggleTheme()">
+        <span class="material-symbols-rounded">palette</span>
+        Toggle Theme
+      </button>
+      <button onclick="toggleZen()">
+        <span class="material-symbols-rounded">do_not_disturb</span>
+        Zen Mode
+      </button>
+      <button onclick="window.location.reload()">
+        <span class="material-symbols-rounded">refresh</span>
+        Refresh Page
+      </button>
+      <button onclick="resetAll()">
+        <span class="material-symbols-rounded">restart_alt</span>
+        Reset All Data
+      </button>
+      <hr>
+      <button onclick="alert('HousZen v1.0.0\nA minimal new tab experience.')">
+        <span class="material-symbols-rounded">info</span>
+        About
+      </button>
+
+      <button onclick="window.open('https://github.com/navaneet239/HousZen', '_blank')">
+        <span class="material-symbols-rounded">code</span>
+        View Source
+      </button>
+    </div>
+    <div class="sidebar-footer">
+      Made with 💚 by<br>
+      <a href="https://navaneetj239.web.app" target="_blank">Navaneet J</a>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      document.getElementById('searchInput').focus();
+    });
+
+    function updateGreeting() {
+      const greetingEl = document.querySelector('.greeting');
+      const now = new Date();
+      const hour = now.getHours();
+      let greeting = "Good Evening";
+      if (hour >= 5 && hour < 12) {
+        greeting = "Good Morning";
+      } else if (hour >= 12 && hour < 17) {
+        greeting = "Good Afternoon";
+      } else if (hour >= 17 && hour < 22) {
+        greeting = "Good Evening";
+      } else {
+        greeting = "Sweet Dreams";
+      }
+      let username = localStorage.getItem('username') || 'Click to set your name';
+      greetingEl.innerHTML = `${greeting}, <input id="usernameInput" type="text" value="${username}" 
+      style="background:transparent;border:none;outline:none;font-size:1.1em;font-weight:200; color: white; min-width: 3rem; 
+      text-align:left;" maxlength="32" /> 
+      <span class="material-symbols-rounded" style="vertical-align: middle; font-size:1.3em; background: var(--text-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">auto_awesome</span>`;
+
+      const usernameInput = document.getElementById('usernameInput');
+      if (usernameInput) {
+        usernameInput.addEventListener('input', function () {
+          localStorage.setItem('username', this.value || 'User');
+        });
+      }
+    }
+    updateGreeting();
+    setInterval(updateGreeting, 60 * 1000);
+
+    function updateTime() {
+      const now = new Date();
+      document.getElementById('clock').innerText = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+    setInterval(updateTime, 1000);
+    updateTime();
+
+    function searchGoogle() {
+      const query = document.getElementById('searchInput').value;
+      if (query) window.location.href = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
+    }
+
+    // Particle background using canvas
+    const canvas = document.getElementById("background");
+    const ctx = canvas.getContext("2d");
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const particles = Array.from({ length: 100 }, () => ({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      radius: Math.random() * 2 + 1,
+      dx: Math.random() * 0.5,
+      dy: Math.random() * 0.5
+    }));
+
+    function animateParticles() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach(p => {
+        p.x += p.dx;
+        p.y += p.dy;
+        if (p.x > canvas.width || p.y > canvas.height) {
+          p.x = Math.random() * canvas.width;
+          p.y = Math.random() * canvas.height;
+        }
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+        ctx.fill();
+      });
+      requestAnimationFrame(animateParticles);
+    }
+    animateParticles();
+
+    // Blob effect
+    let blob = {
+      x: window.innerWidth / 2,
+      y: window.innerHeight / 2,
+      radius: 120,
+      tx: window.innerWidth / 2,
+      ty: window.innerHeight / 2
+    };
+
+    document.addEventListener("mousemove", e => {
+      blob.tx = e.clientX;
+      blob.ty = e.clientY;
+    });
+
+    function drawBlob() {
+      // Smoothly interpolate position
+      blob.x += (blob.tx - blob.x) * 0.15;
+      blob.y += (blob.ty - blob.y) * 0.15;
+
+      // Draw green blur blob
+      ctx.save();
+      ctx.globalAlpha = 0.35;
+      ctx.filter = "blur(100px)";
+      ctx.beginPath();
+      ctx.arc(blob.x, blob.y, blob.radius, 0, Math.PI * 2);
+      ctx.fillStyle = "#a3fd93";
+      ctx.fill();
+      ctx.restore();
+    }
+
+    const origAnimateParticles = animateParticles;
+    function animateParticlesWithBlob() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      drawBlob();
+      particles.forEach(p => {
+        p.x += p.dx;
+        p.y += p.dy;
+        if (p.x > canvas.width || p.y > canvas.height) {
+          p.x = Math.random() * canvas.width;
+          p.y = Math.random() * canvas.height;
+        }
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+        ctx.fill();
+      });
+      requestAnimationFrame(animateParticlesWithBlob);
+    }
+    animateParticles = animateParticlesWithBlob;
+    animateParticles();
+
+    // Simple calendar widget logic
+    let calDate = new Date();
+    function renderCalendar() {
+      const month = calDate.getMonth();
+      const year = calDate.getFullYear();
+      const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+      document.getElementById('calendarMonth').innerText = `${monthNames[month]} ${year}`;
+      const firstDay = new Date(year, month, 1).getDay();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      let html = '';
+      let day = 1;
+      for (let i = 0; i < 6; i++) {
+        html += '<tr>';
+        for (let j = 0; j < 7; j++) {
+          if ((i === 0 && j < firstDay) || day > daysInMonth) {
+            html += '<td style="height:2em;"></td>';
+          } else {
+            const isToday = day === (new Date()).getDate() && month === (new Date()).getMonth() && year === (new Date()).getFullYear();
+            html += `<td style="height:2em;${isToday ? 'background:rgba(163,253,147,0.18);border-radius:8px;color:#a3fd93;font-weight:600;' : ''}">${day}</td>`;
+            day++;
+          }
+        }
+        html += '</tr>';
+        if (day > daysInMonth) break;
+      }
+      document.querySelector('#calendarTable tbody').innerHTML = html;
+    }
+    function prevMonth() {
+      calDate.setMonth(calDate.getMonth() - 1);
+      renderCalendar();
+    }
+    function nextMonth() {
+      calDate.setMonth(calDate.getMonth() + 1);
+      renderCalendar();
+    }
+    renderCalendar();
+
+    function toggleZen() {
+      const shortcuts = document.querySelector('.shortcuts');
+      const widgets = document.querySelector('.widgets');
+      const zenButton = document.querySelector('.zen-toggle span');
+      const isEnteringZen = !document.body.classList.contains('zen-mode');
+
+      if (isEnteringZen) {
+        // Entering zen mode
+        document.body.classList.add('zen-mode');
+        zenButton.textContent = 'do_not_disturb_off';
+        localStorage.setItem('zenMode', 'true');
+        setTimeout(() => {
+          shortcuts.classList.add('hidden');
+          widgets.classList.add('hidden');
+        }, 300);
+      } else {
+        // Exiting zen mode
+        shortcuts.classList.remove('hidden');
+        widgets.classList.remove('hidden');
+        localStorage.setItem('zenMode', 'false');
+        setTimeout(() => {
+          document.body.classList.remove('zen-mode');
+          zenButton.textContent = 'do_not_disturb';
+        }, 50);
+      }
+    }
+
+    // Initialize zen mode state from localStorage
+    document.addEventListener('DOMContentLoaded', () => {
+      if (localStorage.getItem('zenMode') === 'true') {
+        toggleZen();
+      }
+    });
+
+    // Handle loading screen
+    setTimeout(() => {
+      const loader = document.querySelector('.loading-screen');
+      loader.classList.add('fade-out');
+      setTimeout(() => loader.remove(), 300);
+    }, 500);
+
+    function toggleSidebar() {
+      const sidebar = document.querySelector('.sidebar');
+      const overlay = document.querySelector('.sidebar-overlay');
+      sidebar.classList.toggle('open');
+      overlay.classList.toggle('active');
+    }
+
+    // Close sidebar when clicking overlay
+    document.querySelector('.sidebar-overlay').addEventListener('click', toggleSidebar);
+
+    // Theme toggle functionality
+    function toggleTheme() {
+      const root = document.documentElement;
+      const isDark = root.getAttribute('data-theme') === 'dark';
+      root.setAttribute('data-theme', isDark ? 'light' : 'dark');
+      localStorage.setItem('theme', isDark ? 'light' : 'dark');
+    }
+
+    function resetAll() {
+      if (confirm('This will reset all your data. Are you sure?')) {
+        localStorage.clear();
+        window.location.reload();
+      }
+    }
+
+    // Initialize theme from localStorage
+    document.addEventListener('DOMContentLoaded', () => {
+      const theme = localStorage.getItem('theme') || 'light';
+      document.documentElement.setAttribute('data-theme', theme);
+    });
+  </script>
+</body>
+
+</html>
